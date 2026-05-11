@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["mode"],
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["pages", "stages", "flows"]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "mode": { "const": "pages" } }
+      },
+      "then": { "$ref": "#/definitions/pages" }
+    },
+    {
+      "if": {
+        "properties": { "mode": { "const": "stages" } }
+      },
+      "then": { "$ref": "#/definitions/stages" }
+    },
+    {
+      "if": {
+        "properties": { "mode": { "const": "flows" } }
+      },
+      "then": { "$ref": "#/definitions/flows" }
+    }
+  ],
+  "definitions": {
+    "pages": {
+      "type": "object",
+      "required": ["mode", "pages"],
+      "properties": {
+        "mode": { "const": "pages" },
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "route"],
+            "properties": {
+              "id": { "type": "integer" },
+              "title": { "type": "string" },
+              "route": { "type": "string" },
+              "type": { "type": ["string", "null"] },
+              "stage": {
+                "type": ["object"],
+                "properties": {
+                  "main": { "type": ["string"] },
+                  "subStage": { "type": ["integer", "string"] }
+                },
+                "additionalProperties": false
+              },
+              "description": { "type": ["string", "null"] },
+              "newPage": { "type": ["boolean", "null"] },
+              "iterations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["phase", "version"],
+                  "properties": {
+                    "phase": { "type": "string" },
+                    "version": { "type": ["integer"] },
+                    "notes": { "type": ["string", "null"] } 
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "stages": {
+      "type": "object",
+      "required": ["mode", "stages"],
+      "properties": {
+        "mode": { "const": "stages" },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "route"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "route": { "type": "string" },
+              "description": { "type": ["string", "null"] },
+              "subStages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "title"],
+                  "properties": {
+                    "id": { "type": ["string", "integer"] },
+                    "title": { "type": "string" },
+                    "route": { "type": "string" },
+                    "description": { "type": ["string", "null"] }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "flows": {
+      "type": "object",
+      "required": ["mode", "flows"],
+      "properties": {
+        "mode": { "const": "flows" },
+        "flows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "steps"],
+            "properties": {
+              "id": { "type": "integer" },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "user": { "type": "string" },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["pageId"],
+                  "properties": {
+                    "pageId": { "type": ["integer"] }
+                  },
+                  "additionalProperties": false
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
