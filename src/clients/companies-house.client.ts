@@ -1,13 +1,18 @@
 import axios from "axios";
+
+console.log("ENV: " +
+    JSON.stringify(process.env.COMPANIES_HOUSE_API_KEY)
+);
+
 export default {
     async search(companyName: string) {
         const response = await axios.get(
-            "https://api.company-information.service.gov.uk/search/companies",
+            process.env.COMPANIES_HOUSE_API_URL + "/search/companies",
             {
                 params: {
                     q: companyName
                 },
-                auth: {
+                headers: {
                     username: process.env.COMPANIES_HOUSE_API_KEY || "",
                     password: ""
                 }
