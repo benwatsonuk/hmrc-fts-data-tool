@@ -3,6 +3,8 @@ import nunjucks from "nunjucks";
 import swaggerUi from "swagger-ui-express";
 import domainRoutes from "./routes/domain.routes";
 import swaggerSpec from "./config/swagger";
+import errorHandler from "./middleware/error-handler";
+import notFound from "./middleware/not-found";
 
 const app = express();
 
@@ -23,5 +25,8 @@ app.get("/", (_req, res) => {
     title: "Domain Intelligence API"
   });
 });
+
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;

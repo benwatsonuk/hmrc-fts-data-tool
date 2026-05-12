@@ -1,3 +1,5 @@
+// src/config/swagger.ts
+
 import swaggerJsdoc from "swagger-jsdoc";
 
 const options = {
@@ -5,10 +7,14 @@ const options = {
     openapi: "3.0.0",
     info: {
       title: "Domain Intelligence API",
-      version: "1.0.0"
+      version: "1.0.0",
+      description:
+        "API for organisation/domain enrichment"
     }
   },
   apis: ["./src/routes/*.ts"]
 };
 
-export default swaggerJsdoc(options);
+const swaggerSpec = swaggerJsdoc(options);
+
+export default swaggerSpec;
