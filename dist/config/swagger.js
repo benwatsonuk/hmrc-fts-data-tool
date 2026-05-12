@@ -1,4 +1,5 @@
 "use strict";
+// src/config/swagger.ts
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -9,9 +10,11 @@ const options = {
         openapi: "3.0.0",
         info: {
             title: "Domain Intelligence API",
-            version: "1.0.0"
+            version: "1.0.0",
+            description: "API for organisation/domain enrichment"
         }
     },
     apis: ["./src/routes/*.ts"]
 };
-exports.default = (0, swagger_jsdoc_1.default)(options);
+const swaggerSpec = (0, swagger_jsdoc_1.default)(options);
+exports.default = swaggerSpec;

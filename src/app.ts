@@ -5,23 +5,31 @@ import domainRoutes from "./routes/domain.routes";
 import swaggerSpec from "./config/swagger";
 import errorHandler from "./middleware/error-handler";
 import notFound from "./middleware/not-found";
+import path from "path";
 
 const app = express();
 
 app.use(express.json());
 
-nunjucks.configure("src/views", {
+nunjucks.configure(["src/views", "node_modules/govuk-frontend/dist/govuk/"], {
   autoescape: true,
   express: app
 });
 
-app.set("view engine", "njk");
+const publicPath = path.resolve(
+  process.cwd(),
+  "public"
+);
+console.log(publicPath)
+
+app.set("view engine", "html");
+app.use('/assets', express.static(publicPath))
 
 app.use("/api/domain", domainRoutes);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (_req, res) => {
-  res.render("index.njk", {
+  res.render("index.html", {
     title: "Domain Intelligence API"
   });
 });
