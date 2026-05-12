@@ -20,7 +20,6 @@ const publicPath = path.resolve(
   process.cwd(),
   "public"
 );
-console.log(publicPath)
 
 app.set("view engine", "html");
 app.use('/assets', express.static(publicPath))
