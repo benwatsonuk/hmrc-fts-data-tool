@@ -1,0 +1,52 @@
+{% extends "../layout.html" %}
+
+{% set pageName= title %}
+
+{% block beforeContent %}
+{% from "components/back-link/macro.njk" import govukBackLink %}
+
+{{ govukBackLink({
+  text: "Back",
+  href: "javascript:history.back(-1);"
+}) }}
+{% endblock %}
+
+{% block content %}
+  <h1>{{ domainInfo.title }}</h1>
+
+  <h2 class="govuk-heading-l">Domain Information</h2>
+
+  {% from "components/summary-list/macro.njk" import govukSummaryList %}
+
+{% set data = [
+  {
+    key: {
+      text: "Company Name"
+    },
+    value: {
+      html: domainInfo.companyName
+    }
+  },
+  {
+    key: {
+      text: "Legal Name"
+    },
+    value: {
+      html: domainInfo.legalName
+    }
+  },
+  {
+    key: {
+      text: "Domain Name"
+    },
+    value: {
+      html: "<span class='govuk-tag'>" + domainInfo.domain + "</span>"
+    }
+  }
+] %}
+
+{{ govukSummaryList({
+  rows: data
+}) }}
+
+{% endblock %}

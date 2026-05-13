@@ -21,13 +21,11 @@
 			{% from "components/table/macro.njk" import govukTable %}
 
 {% set domainSearchHtml %}
-<h2 class="govuk-heading-l">Domain Search</h2>
-<p>Search for a domain to view its information.</p>
+	{% include './includes/search.html' %}
 {% endset -%}
 
 {% set domainCacheHtml %}
-<h2 class="govuk-heading-l">Domain Cache</h2>
-<p>This is a simple domain cache for testing purposes.</p>
+	{% include './includes/cache.html' %}
 {% endset -%}
 
 {{ govukTabs({

@@ -1,0 +1,44 @@
+{% from "components/table/macro.njk" import govukTable %}
+
+{% set items = [] %}
+{% for item in params.cache | reverse %}
+    {% set href = "/ui/domain/" + item.domain %}
+{% set itemTitle = item.companyName %}
+{% if item.legalName %}
+    {% set itemTitle = item.companyName + " (<span>" + item.legalName + "</span>)" %}
+{% endif %}
+{% if item.logo %}
+    {% set itemTitle = "<img src='" + item.logo + "' alt='" + item.companyName + " logo' class='cache-logo'>" + itemTitle %}
+{% endif %}
+
+    {% set item = [{
+        html: itemTitle | safe
+      },
+      {
+        html: "<span class='govuk-tag'>" + item.domain + "</span>"
+      },
+      {
+        html: '<a href="' + href + '">View Domain Intelligence</a>'
+      }]
+      %}
+    {% set items = (items.push(item), items) %}
+{% endfor %}
+
+{{ govukTable({
+  caption: "Cached domain searches",
+  captionClasses: "govuk-table__caption--m",
+  firstCellIsHeader: true,
+  head: [
+    {
+      text: "Company Name"
+    },
+    {
+      text: "Domain Name"
+    },
+    {
+        text: "Link"
+    }
+  ],
+  rows: items
+})
+}}

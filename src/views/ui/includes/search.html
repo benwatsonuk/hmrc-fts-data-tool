@@ -1,0 +1,18 @@
+{% from "components/input/macro.njk" import govukInput %}
+{% from "components/button/macro.njk" import govukButton %}
+
+<form method="post" action="./">
+{{ govukInput({
+  label: {
+    text: "Domain Name",
+    classes: "govuk-label--m",
+    isPageHeading: true
+  },
+  id: "domain",
+  name: "domain"
+}) }}
+
+{{ govukButton({
+  text: "Lookup Domain"
+}) }}
+</form>
