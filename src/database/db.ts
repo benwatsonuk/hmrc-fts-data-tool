@@ -39,6 +39,7 @@ db.serialize(() => {
         confidence_score INTEGER,
         source_data TEXT,
         last_checked TEXT NOT NULL,
+        address TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         )

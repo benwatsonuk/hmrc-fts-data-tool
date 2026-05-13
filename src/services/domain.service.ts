@@ -63,6 +63,7 @@ export default {
       employees: companyEnrich?.employees || null,
       description: companyEnrich?.description || null,
       categories: companyEnrich?.categories || null,
+      address: companyEnrich?.address || null,
       industries: companyEnrich?.industries || null,
       createdOn: companiesHouseData?.date_of_creation || null,
       jurisdiction: companiesHouseData?.jurisdiction || null,

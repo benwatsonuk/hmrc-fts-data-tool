@@ -9,6 +9,7 @@ export interface OrganisationRecord {
     sicCodes?: string[] | null;
     organisationType?: string | null;
     logoUrl?: string | null;
+    address?: string | null;
     companiesHouseLinks?: any | null;
     previousCompanyNames?: string[] | null;
     estimatedDomainAge?: number | null;
@@ -73,7 +74,8 @@ export function findByDomain(
                     companiesHouseStatus: row.companies_house_status,
                     confidenceScore: row.confidence_score,
                     sourceData: row.source_data ? JSON.parse(row.source_data) : null,
-                    lastChecked: row.last_checked
+                    lastChecked: row.last_checked,
+                    address: row.address || null
                 });
             }
         );
@@ -107,8 +109,9 @@ export function save(record: OrganisationRecord): Promise<void> {
             confidence_score,
             source_data,
             last_checked,
-            updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            updated_at,
+            address
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
             `,
             [
                 record.domain,
@@ -134,7 +137,8 @@ export function save(record: OrganisationRecord): Promise<void> {
                 record.companiesHouseStatus || null,
                 record.confidenceScore || 0,
                 JSON.stringify(record.sourceData || {}),
-                record.lastChecked
+                record.lastChecked,
+                record.address || null
             ],
             (err) => {
                 if (err) {
