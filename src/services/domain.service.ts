@@ -11,88 +11,168 @@ import whoisClient from "../clients/whois.client";
 
 export default {
   async lookup(domain: string) {
-    const companyNumberFromDomain: string | null = await findCompanyNumber(domain);
-    let companyLegalName: string | null = null;
-    let companiesHouseData: any = null;
-    let whoIsData: any = null;
-
-    if (companyNumberFromDomain) {
-      console.log(`Found company number from domain: ${companyNumberFromDomain}`);
-    } else {
-      console.log(`No company number found from domain: ${domain}`);
-    }
-
-    if (companyNumberFromDomain) {
-      companiesHouseData = await safeCall("Companies House", () => companiesHouseClient.search(
-        companyNumberFromDomain
-      ));
-      console.log(`Companies House data: ${JSON.stringify(companiesHouseData)}`);
-
-      if (companiesHouseData) {
-        companyLegalName = companiesHouseData.company_name || null;
-        console.log(
-          `Company legal name from Companies House: ${companyLegalName}`
-        );
-      }
-    }
-
-    whoIsData = await safeCall("Whois", () => whoisClient.lookup(domain));
-    console.log(`WhoIs data: ${JSON.stringify(whoIsData)}`);
-
+    /**
+     * 1. CACHE FIRST (critical fix)
+     */
     const cached = await findByDomain(domain);
+
     if (cached && isFresh(cached.lastChecked)) {
       console.log(`Cache hit for ${domain}`);
       return cached;
     }
-    console.log(`Fresh lookup for ${domain}`);
-    const companyEnrich = await safeCall("Company Enrich", () => companyEnrichClient.lookup(domain));
+
+    console.log(`Cache miss for ${domain}`);
+
+    /**
+     * 2. FAST DOMAIN SIGNALS (non-blocking enrichment inputs)
+     */
+    const companyNumberFromDomain = await safeCall(
+      "Find company number from domain",
+      () => findCompanyNumber(domain)
+    );
+
+    if (companyNumberFromDomain) {
+      console.log(
+        `Found company number from domain: ${companyNumberFromDomain}`
+      );
+    }
+
+    /**
+     * 3. WHOIS (soft dependency)
+     */
+    const whoIsData = await safeCall(
+      "Whois lookup",
+      () => whoisClient.lookup(domain)
+    );
+
+    /**
+     * 4. COMPANIES HOUSE (only if we have a lead)
+     */
+    let companiesHouseData: any = null;
+    let companyLegalName: string | null = null;
+
+    if (companyNumberFromDomain) {
+      companiesHouseData = await safeCall(
+        "Companies House search",
+        () =>
+          companiesHouseClient.search(
+            companyNumberFromDomain
+          )
+      );
+
+      if (companiesHouseData) {
+        companyLegalName =
+          companiesHouseData.company_name || null;
+
+        console.log(
+          `Company legal name: ${companyLegalName}`
+        );
+      }
+    }
+
+    /**
+     * 5. ENRICHMENT API (best-effort)
+     */
+    const companyEnrich = await safeCall(
+      "Company Enrich",
+      () =>
+        companyEnrichClient.lookup(domain)
+    );
+
+    /**
+     * 6. DERIVE CORE FIELDS
+     */
     const companyName =
       companyEnrich?.company_name ||
       companyEnrich?.name ||
       companyLegalName ||
       null;
 
+    const companyNumber =
+      companyNumberFromDomain ||
+      companiesHouseData?.company_number ||
+      null;
+
+    /**
+     * 7. FINAL RESULT OBJECT
+     */
     const result = {
       domain,
+
       companyName,
+
       legalName:
         companyLegalName || companyName,
-      companyNumber:
-        companyName || null,
+
+      companyNumber,
+
       revenue: companyEnrich?.revenue || null,
       employees: companyEnrich?.employees || null,
-      description: companyEnrich?.description || null,
-      categories: companyEnrich?.categories || null,
+      description:
+        companyEnrich?.description || null,
+      categories:
+        companyEnrich?.categories || null,
       address: companyEnrich?.address || null,
-      industries: companyEnrich?.industries || null,
-      createdOn: companiesHouseData?.date_of_creation || null,
-      jurisdiction: companiesHouseData?.jurisdiction || null,
-      sicCodes: companiesHouseData?.sic_codes || null,
-      organisationType: companiesHouseData?.type || null,
-      logoUrl: companyEnrich?.logo_url || null,
-      companiesHouseLinks: companiesHouseData?.links || null,
-      previousCompanyNames: companiesHouseData?.previous_company_names || null,
-      estimatedDomainAge: whoIsData?.WhoisRecord?.estimatedDomainAge || null,
+      industries:
+        companyEnrich?.industries || null,
+
+      createdOn:
+        companiesHouseData?.date_of_creation ||
+        null,
+
+      jurisdiction:
+        companiesHouseData?.jurisdiction || null,
+
+      sicCodes:
+        companiesHouseData?.sic_codes || null,
+
+      organisationType:
+        companiesHouseData?.type || null,
+
+      logoUrl:
+        companyEnrich?.logo_url || null,
+
+      companiesHouseLinks:
+        companiesHouseData?.links || null,
+
+      previousCompanyNames:
+        companiesHouseData?.previous_company_names ||
+        null,
+
+      estimatedDomainAge:
+        whoIsData?.WhoisRecord
+          ?.estimatedDomainAge || null,
+
       industry:
-        companyEnrich?.industry ||
-        null,
+        companyEnrich?.industry || null,
+
       website:
-        companyEnrich.website ||
-        null,
+        companyEnrich?.website || null,
+
       linkedinUrl:
-        companyEnrich.linkedin_url ||
-        null,
+        companyEnrich?.linkedin_url || null,
+
       companiesHouseStatus:
-        companiesHouseData?.company_status || null,
-      confidenceScore: companiesHouseData ? 85 : 60,
+        companiesHouseData?.company_status ||
+        null,
+
+      confidenceScore:
+        companiesHouseData ? 85 : 60,
+
       sourceData: {
         companyEnrich,
         companiesHouseData,
         whoIsData
       },
+
       lastChecked: new Date().toISOString()
     };
+
+    /**
+     * 8. SAVE TO CACHE
+     */
     await save(result);
+
     return result;
   }
 };
