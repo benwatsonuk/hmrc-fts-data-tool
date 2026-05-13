@@ -1,3 +1,4 @@
+import { safeCall } from "../utils/safe-call";
 import companyEnrichClient from "../clients/company-enrich.client";
 import findCompanyNumber from "../utils/find-company-number";
 import companiesHouseClient from "../clients/companies-house.client";
@@ -15,12 +16,16 @@ export default {
     let companiesHouseData: any = null;
     let whoIsData: any = null;
 
-    console.log(`Company number from domain: ${companyNumberFromDomain}`);
+    if (companyNumberFromDomain) {
+      console.log(`Found company number from domain: ${companyNumberFromDomain}`);
+    } else {
+      console.log(`No company number found from domain: ${domain}`);
+    }
 
     if (companyNumberFromDomain) {
-      companiesHouseData = await companiesHouseClient.search(
+      companiesHouseData = await safeCall("Companies House", () => companiesHouseClient.search(
         companyNumberFromDomain
-      );
+      ));
       console.log(`Companies House data: ${JSON.stringify(companiesHouseData)}`);
 
       if (companiesHouseData) {
@@ -31,7 +36,7 @@ export default {
       }
     }
 
-    whoIsData = await whoisClient.lookup(domain);
+    whoIsData = await safeCall("Whois", () => whoisClient.lookup(domain));
     console.log(`WhoIs data: ${JSON.stringify(whoIsData)}`);
 
     const cached = await findByDomain(domain);
@@ -40,10 +45,10 @@ export default {
       return cached;
     }
     console.log(`Fresh lookup for ${domain}`);
-    const companyEnrich = await companyEnrichClient.lookup(domain);
+    const companyEnrich = await safeCall("Company Enrich", () => companyEnrichClient.lookup(domain));
     const companyName =
-      companyEnrich.company_name ||
-      companyEnrich.name ||
+      companyEnrich?.company_name ||
+      companyEnrich?.name ||
       companyLegalName ||
       null;
 
@@ -54,21 +59,21 @@ export default {
         companyLegalName || companyName,
       companyNumber:
         companyName || null,
-      revenue: companyEnrich.revenue || null,
-      employees: companyEnrich.employees || null,
-      description: companyEnrich.description || null,
-      categories: companyEnrich.categories || null,
-      industries: companyEnrich.industries || null,
+      revenue: companyEnrich?.revenue || null,
+      employees: companyEnrich?.employees || null,
+      description: companyEnrich?.description || null,
+      categories: companyEnrich?.categories || null,
+      industries: companyEnrich?.industries || null,
       createdOn: companiesHouseData?.date_of_creation || null,
       jurisdiction: companiesHouseData?.jurisdiction || null,
       sicCodes: companiesHouseData?.sic_codes || null,
       organisationType: companiesHouseData?.type || null,
-      logoUrl: companyEnrich.logo_url || null,
+      logoUrl: companyEnrich?.logo_url || null,
       companiesHouseLinks: companiesHouseData?.links || null,
       previousCompanyNames: companiesHouseData?.previous_company_names || null,
       estimatedDomainAge: whoIsData?.WhoisRecord?.estimatedDomainAge || null,
       industry:
-        companyEnrich.industry ||
+        companyEnrich?.industry ||
         null,
       website:
         companyEnrich.website ||
