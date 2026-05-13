@@ -10,6 +10,9 @@ import {
 export default {
   async lookup(domain: string) {
     const companyNumberFromDomain: number | null = await findCompanyNumber(domain);
+    let companyLegalName: string | null = null;
+    let companiesHouseData: any = null;
+    let whoIsData: any = null;
 
     console.log(`Company number from domain: ${companyNumberFromDomain}`);
 
@@ -17,11 +20,13 @@ export default {
       const companiesHouseData = await companiesHouseClient.search(
         companyNumberFromDomain
       );
+      console.log(`Companies House data: ${JSON.stringify(companiesHouseData)}`);
+
       if (companiesHouseData) {
-        return {
-          domain,
-          companyName: companiesHouseData.title
-        }
+        companyLegalName = companiesHouseData.company_name || null;
+        console.log(
+          `Company legal name from Companies House: ${companyLegalName}`
+        );
       }
     }
 
@@ -35,21 +40,16 @@ export default {
     const companyName =
       companyEnrich.company_name ||
       companyEnrich.name ||
+      companyLegalName ||
       null;
-    let companiesHouse = null;
-    if (companyName) {
-      // companiesHouse = await companiesHouseClient.search(
-      //   companyName
-      // );
-      companiesHouse = companyName
-    }
+
     const result = {
       domain,
       companyName,
       legalName:
-        companiesHouse?.title || companyName,
+        companyLegalName || companyName,
       companyNumber:
-        companiesHouse?.company_number || null,
+        companyNumberFromDomain || null,
       industry:
         companyEnrich.industry || null,
       website:
@@ -57,11 +57,12 @@ export default {
       linkedinUrl:
         companyEnrich.linkedin_url || null,
       companiesHouseStatus:
-        companiesHouse?.company_status || null,
-      confidenceScore: companiesHouse ? 85 : 60,
+        companiesHouseData?.company_status || null,
+      confidenceScore: companiesHouseData ? 85 : 60,
       sourceData: {
         companyEnrich,
-        companiesHouse
+        companiesHouseData,
+        whoIsData
       },
       lastChecked: new Date().toISOString()
     };

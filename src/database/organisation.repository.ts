@@ -4,7 +4,7 @@ export interface OrganisationRecord {
     domain: string;
     companyName?: string;
     legalName?: string;
-    companyNumber?: string;
+    companyNumber?: number | null;
     industry?: string;
     website?: string;
     linkedinUrl?: string;
