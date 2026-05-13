@@ -54,8 +54,8 @@ export default {
         companyLegalName || companyName,
       companyNumber:
         companyName || null,
-      revenue: null,
-      employees: null,
+      revenue: companyEnrich.revenue || null,
+      employees: companyEnrich.employees || null,
       description: companyEnrich.description || null,
       categories: companyEnrich.categories || null,
       industries: companyEnrich.industries || null,
