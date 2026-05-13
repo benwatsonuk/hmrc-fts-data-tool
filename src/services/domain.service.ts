@@ -1,4 +1,5 @@
 import companyEnrichClient from "../clients/company-enrich.client";
+import findCompanyNumber from "../utils/find-company-number";
 import companiesHouseClient from "../clients/companies-house.client";
 import {
   findByDomain,
@@ -7,6 +8,22 @@ import {
 } from "../database/organisation.repository";
 export default {
   async lookup(domain: string) {
+    const companyNumberFromDomain = await findCompanyNumber(domain);
+
+    console.log(`Company number from domain: ${companyNumberFromDomain}`);
+
+    if (companyNumberFromDomain) {
+      const companiesHouseData = await companiesHouseClient.search(
+        companyNumberFromDomain
+      );
+      if (companiesHouseData) {
+        return {
+          domain,
+          companyName: companiesHouseData.title
+        }
+      }
+    }
+
     const cached = await findByDomain(domain);
     if (cached && isFresh(cached.lastChecked)) {
       console.log(`Cache hit for ${domain}`);
