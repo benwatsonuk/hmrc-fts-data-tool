@@ -24,9 +24,6 @@ router.get("/", async (_req, res) => {
       "Failed to load organisations"
     );
   }
-  // res.render("ui/index.html", {
-  //   title: "Domain Intelligence API - UI"
-  // });
 });
 
 router.post("/", (_req, res) => {
@@ -35,12 +32,21 @@ router.post("/", (_req, res) => {
   });
 });
 
-router.get("/:id", async (_req, res) => {
-  const domainInfo = { title: "hello" }
-  res.render("ui/single.html", {
-    title: "Domain Intelligence API - UI",
-    domainInfo: domainInfo
-  });
+router.get("/:domain", async (_req, res) => {
+  try {
+    const domainInfo = (await findAll()).find(x => x.domain === _req.params.domain);
+
+    res.render("ui/single.html", {
+      domainInfo
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send(
+      "Failed to load data for domain"
+    );
+  }
 });
 
 export default router;

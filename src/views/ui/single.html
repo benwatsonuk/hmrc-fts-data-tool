@@ -12,9 +12,17 @@
 {% endblock %}
 
 {% block content %}
-  <h1>{{ domainInfo.title }}</h1>
-
-  <h2 class="govuk-heading-l">Domain Information</h2>
+			<h2 class="govuk-caption-l hmrc-caption-l">
+				<span class="govuk-visually-hidden">This section is
+				</span>Domain Intelligence</h2>
+			<h1 class="govuk-heading-xl" style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+				{{ domainInfo.company_name }}{% if domainInfo.legal_name and domainInfo.legal_name != domainInfo.company_name %} <span class="govuk-hint">({{ domainInfo.legal_name }})</span>{% endif %}
+        </div>
+        {% if domainInfo.logo_url %}
+            <img style="max-width: 100px;" src="{{ domainInfo.logo_url }}" alt="{{ domainInfo.company_name }} logo" class="govuk-table__image" />
+        {% endif %}
+			</h1>
 
   {% from "components/summary-list/macro.njk" import govukSummaryList %}
 
@@ -24,7 +32,7 @@
       text: "Company Name"
     },
     value: {
-      html: domainInfo.companyName
+      html: domainInfo.company_name
     }
   },
   {
@@ -32,7 +40,7 @@
       text: "Legal Name"
     },
     value: {
-      html: domainInfo.legalName
+      html: domainInfo.legal_name
     }
   },
   {
@@ -41,6 +49,78 @@
     },
     value: {
       html: "<span class='govuk-tag'>" + domainInfo.domain + "</span>"
+    }
+  },
+  {
+    key: {
+      text: "Data Confidence"
+    },
+    value: {
+      html: domainInfo.confidence_score + "%"
+    }
+  },
+  {
+    key: {
+      text: "Company Registration Number"
+    },
+    value: {
+      html: domainInfo.company_number
+    }
+  },
+  {
+    key: {
+      text: "Status"
+    },
+    value: {
+      html: domainInfo.companies_house_status
+    }
+  },
+  {
+    key: {
+      text: "Address"
+    },
+    value: {
+      html: domainInfo.address
+    }
+  },
+  {
+    key: {
+      text: "Primary Industry"
+    },
+    value: {
+      html: domainInfo.industry
+    }
+  },  
+  {
+    key: {
+      text: "Estimated Revenue (£)"
+    },
+    value: {
+      html: domainInfo.revenue
+    }
+  },
+    {
+    key: {
+      text: "Estimated Size"
+    },
+    value: {
+      html: domainInfo.employees
+    }
+  },
+  {
+    key: {
+      text: "Description"
+    },
+    value: {
+      html: domainInfo.description
+    }
+  },
+  {
+    key: {
+      text: "Status"
+    },
+    value: {
+      html: domainInfo.companiesHouseStatus
     }
   }
 ] %}

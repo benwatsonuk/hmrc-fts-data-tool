@@ -112,7 +112,7 @@ export default {
         companyEnrich?.description || null,
       categories:
         companyEnrich?.categories || null,
-      address: companyEnrich?.address || null,
+      address: companyEnrich?.location?.address || null,
       industries:
         companyEnrich?.industries || null,
 
