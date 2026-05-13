@@ -20,9 +20,10 @@ export default {
       null;
     let companiesHouse = null;
     if (companyName) {
-      companiesHouse = await companiesHouseClient.search(
-        companyName
-      );
+      // companiesHouse = await companiesHouseClient.search(
+      //   companyName
+      // );
+      companiesHouse = companyName
     }
     const result = {
       domain,
