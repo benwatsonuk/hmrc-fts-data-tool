@@ -5,7 +5,7 @@ import * as cheerio from "cheerio";
 
 export default async function findCompanyNumber(
     domain: string
-): Promise<number | null> {
+): Promise<string | null> {
     const baseUrl = domain.startsWith("http")
         ? domain
         : `https://${domain}`;
@@ -71,7 +71,7 @@ export default async function findCompanyNumber(
                     `Found company number ${match[1]} on ${url}`
                 );
 
-                return parseInt(match[1], 10);
+                return match[1]
             }
         } catch (error) {
             /**

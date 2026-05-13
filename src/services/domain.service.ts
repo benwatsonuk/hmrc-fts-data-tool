@@ -6,10 +6,11 @@ import {
   save,
   isFresh
 } from "../database/organisation.repository";
+import whoisClient from "../clients/whois.client";
 
 export default {
   async lookup(domain: string) {
-    const companyNumberFromDomain: number | null = await findCompanyNumber(domain);
+    const companyNumberFromDomain: string | null = await findCompanyNumber(domain);
     let companyLegalName: string | null = null;
     let companiesHouseData: any = null;
     let whoIsData: any = null;
@@ -29,6 +30,9 @@ export default {
         );
       }
     }
+
+    whoIsData = await whoisClient.lookup(domain);
+    console.log(`WhoIs data: ${JSON.stringify(whoIsData)}`);
 
     const cached = await findByDomain(domain);
     if (cached && isFresh(cached.lastChecked)) {

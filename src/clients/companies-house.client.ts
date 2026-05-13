@@ -35,7 +35,7 @@ export const searchByName = {
 
 export default {
     // Search by Company Number
-    async search(companyNumber: number) {
+    async search(companyNumber: string) {
         const response = await axios.get(
             process.env.COMPANIES_HOUSE_API_URL + "/company/" + companyNumber,
             {
