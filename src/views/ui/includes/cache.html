@@ -1,15 +1,18 @@
 {% from "components/table/macro.njk" import govukTable %}
 
+<!-- {{ cachedData | dump }} -->
+
 {% set items = [] %}
-{% for item in params.cache | reverse %}
-    {% set href = "/ui/domain/" + item.domain %}
-{% set itemTitle = item.companyName %}
-{% if item.legalName %}
-    {% set itemTitle = item.companyName + " (<span>" + item.legalName + "</span>)" %}
+{% for item in cachedData %}
+    {% set href = "/ui/" + item.domain %}
+{% set itemTitle = item.company_name %}
+{% if item.legal_name and item.legal_name != item.company_name %}
+    {% set itemTitle = item.company_name + " <span class='govuk-hint'>(" + item.legal_name + ")</span>" %}
 {% endif %}
-{% if item.logo %}
-    {% set itemTitle = "<img src='" + item.logo + "' alt='" + item.companyName + " logo' class='cache-logo'>" + itemTitle %}
+{% if item.logo_url %}
+    {% set itemTitle = "<div style='display: flex; align-items: center;'><img style='max-width: 100px;' src='" + item.logo_url + "' alt='" + item.company_name + " logo' class='govuk-table__image' /><div>" + itemTitle + "</div></div>" %}
 {% endif %}
+
 
     {% set item = [{
         html: itemTitle | safe
@@ -23,7 +26,11 @@
       %}
     {% set items = (items.push(item), items) %}
 {% endfor %}
-
+<style>
+  .govuk-table__cell {
+    vertical-align: middle;
+  }
+</style>
 {{ govukTable({
   caption: "Cached domain searches",
   captionClasses: "govuk-table__caption--m",

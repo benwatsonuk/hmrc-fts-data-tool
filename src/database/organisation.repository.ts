@@ -152,3 +152,24 @@ export function save(record: OrganisationRecord): Promise<void> {
 }
 
 export { isFresh };
+
+export function findAll(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+        db.all(
+            `
+      SELECT *
+      FROM organisation_cache
+      ORDER BY last_checked DESC
+      `,
+            [],
+            (err, rows) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(rows);
+            }
+        );
+    });
+}
