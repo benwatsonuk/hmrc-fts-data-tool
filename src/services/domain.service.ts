@@ -40,10 +40,10 @@ export default {
       return cached;
     }
     console.log(`Fresh lookup for ${domain}`);
-    // const companyEnrich = await companyEnrichClient.lookup(domain);
+    const companyEnrich = await companyEnrichClient.lookup(domain);
     const companyName =
-      // companyEnrich.company_name ||
-      // companyEnrich.name ||
+      companyEnrich.company_name ||
+      companyEnrich.name ||
       companyLegalName ||
       null;
 
@@ -53,21 +53,34 @@ export default {
       legalName:
         companyLegalName || companyName,
       companyNumber:
-        companyNumberFromDomain || null,
+        companyName || null,
+      revenue: null,
+      employees: null,
+      description: companyEnrich.description || null,
+      categories: companyEnrich.categories || null,
+      industries: companyEnrich.industries || null,
+      createdOn: companiesHouseData?.date_of_creation || null,
+      jurisdiction: companiesHouseData?.jurisdiction || null,
+      sicCodes: companiesHouseData?.sic_codes || null,
+      organisationType: companiesHouseData?.type || null,
+      logoUrl: companyEnrich.logo_url || null,
+      companiesHouseLinks: companiesHouseData?.links || null,
+      previousCompanyNames: companiesHouseData?.previous_company_names || null,
+      estimatedDomainAge: whoIsData?.WhoisRecord?.estimatedDomainAge || null,
       industry:
-        // companyEnrich.industry || 
+        companyEnrich.industry ||
         null,
       website:
-        // companyEnrich.website || 
+        companyEnrich.website ||
         null,
       linkedinUrl:
-        // companyEnrich.linkedin_url || 
+        companyEnrich.linkedin_url ||
         null,
       companiesHouseStatus:
         companiesHouseData?.company_status || null,
       confidenceScore: companiesHouseData ? 85 : 60,
       sourceData: {
-        // companyEnrich,
+        companyEnrich,
         companiesHouseData,
         whoIsData
       },
