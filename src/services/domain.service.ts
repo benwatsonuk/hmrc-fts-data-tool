@@ -6,9 +6,10 @@ import {
   save,
   isFresh
 } from "../database/organisation.repository";
+
 export default {
   async lookup(domain: string) {
-    const companyNumberFromDomain = await findCompanyNumber(domain);
+    const companyNumberFromDomain: number | null = await findCompanyNumber(domain);
 
     console.log(`Company number from domain: ${companyNumberFromDomain}`);
 

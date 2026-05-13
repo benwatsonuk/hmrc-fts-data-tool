@@ -1,10 +1,21 @@
 import axios from "axios";
 
-console.log("ENV: " +
-    JSON.stringify(process.env.COMPANIES_HOUSE_API_KEY)
-);
+// console.log("ENV: " +
+//     JSON.stringify(process.env.COMPANIES_HOUSE_API_KEY)
+// );
 
-export default {
+const apiKey =
+    process.env.COMPANIES_HOUSE_API_KEY || "";
+
+function getAuthHeader(): string {
+    const encoded = Buffer
+        .from(`${apiKey}:`)
+        .toString("base64");
+
+    return `Basic ${encoded}`;
+}
+
+export const searchByName = {
     async search(companyName: string) {
         const response = await axios.get(
             process.env.COMPANIES_HOUSE_API_URL + "/search/companies",
@@ -13,8 +24,7 @@ export default {
                     q: companyName
                 },
                 headers: {
-                    username: process.env.COMPANIES_HOUSE_API_KEY || "",
-                    password: ""
+                    Authorization: getAuthHeader()
                 }
                 ,
             }
@@ -22,3 +32,19 @@ export default {
         return response.data.items?.[0] || null;
     }
 };
+
+export default {
+    // Search by Company Number
+    async search(companyNumber: number) {
+        const response = await axios.get(
+            process.env.COMPANIES_HOUSE_API_URL + "/company/" + companyNumber,
+            {
+                headers: {
+                    Authorization: getAuthHeader()
+                }
+            }
+        );
+        return response.data || null;
+
+    }
+}

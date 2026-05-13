@@ -1,4 +1,5 @@
 import axios from "axios";
+
 export default {
     async lookup(domain: string) {
         const response = await axios.get(
