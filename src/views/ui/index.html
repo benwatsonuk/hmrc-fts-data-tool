@@ -1,0 +1,56 @@
+{% extends "../layout.html" %}
+
+{% set pageName= title %}
+
+{% block content %}
+
+	<div class="govuk-grid-row">
+
+		<div class="govuk-grid-column-full">
+
+			<h2 class="govuk-caption-l hmrc-caption-l">
+				<span class="govuk-visually-hidden">This section is
+				</span>Proof of Concept</h2>
+			<h1 class="govuk-heading-xl">
+				{{ pageName }}
+			</h1>
+
+			<p class="govuk-body">Use this interface to test the Domain Intelligence API. You can search new domains and view cached domain information.</p>
+
+			{% from "components/tabs/macro.njk" import govukTabs %}
+			{% from "components/table/macro.njk" import govukTable %}
+
+{% set domainSearchHtml %}
+<h2 class="govuk-heading-l">Domain Search</h2>
+<p>Search for a domain to view its information.</p>
+{% endset -%}
+
+{% set domainCacheHtml %}
+<h2 class="govuk-heading-l">Domain Cache</h2>
+<p>This is a simple domain cache for testing purposes.</p>
+{% endset -%}
+
+{{ govukTabs({
+  items: [
+    {
+      label: "Domain Search",
+      id: "domain-search",
+      panel: {
+        html: domainSearchHtml
+      }
+    },
+    {
+      label: "Domain Cache",
+      id: "domain-cache",
+      panel: {
+        html: domainCacheHtml
+      }
+    }
+  ]
+}) }}
+
+
+		</div>
+	</div>
+
+{% endblock %}

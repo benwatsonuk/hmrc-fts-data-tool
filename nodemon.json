@@ -2,7 +2,7 @@
   "watch": [
     "src"
   ],
-  "ext": "ts,json,njk",
+  "ext": "ts,json,njk,html",
   "ignore": [
     "dist",
     "node_modules",

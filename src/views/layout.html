@@ -3,3 +3,14 @@
 {% block head %}
 <link rel="stylesheet" href="/assets/styles/govuk-frontend.min.css">
 {% endblock %}
+
+{% block bodyEnd %}
+<script type="module" src="/assets/javascripts/govuk-frontend.min.js"></script>
+  <script>
+    window.GOVUKFrontend.initAll();
+  </script>
+    <script type="module">
+    import { initAll } from '/assets/javascripts/govuk-frontend.min.js'
+    initAll()
+  </script>
+{% endblock %}

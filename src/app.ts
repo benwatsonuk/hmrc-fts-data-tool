@@ -6,6 +6,7 @@ import swaggerSpec from "./config/swagger";
 import errorHandler from "./middleware/error-handler";
 import notFound from "./middleware/not-found";
 import path from "path";
+import uiRoutes from "./routes/ui.routes";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.set("view engine", "html");
 app.use('/assets', express.static(publicPath))
 
 app.use("/api/domain", domainRoutes);
+app.use("/ui/", uiRoutes);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (_req, res) => {
