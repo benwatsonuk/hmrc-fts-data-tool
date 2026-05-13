@@ -2,14 +2,15 @@ import axios from "axios";
 
 export default {
     async lookup(domain: string) {
-        const response = await axios.get(
+        const response = await axios.post(
             `${process.env.COMPANY_ENRICH_API_URL}`,
             {
-                params: {
-                    domain
-                },
+                domain
+            },
+            {
                 headers: {
-                    Authorization: `Bearer ${process.env.COMPANY_ENRICH_API_KEY}`
+                    Authorization: `Bearer ${process.env.COMPANY_ENRICH_API_KEY}`,
+                    'Content-Type': 'application/json'
                 }
             }
         );

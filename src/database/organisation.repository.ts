@@ -2,13 +2,13 @@ import db from "./db";
 
 export interface OrganisationRecord {
     domain: string;
-    companyName?: string;
-    legalName?: string;
+    companyName?: string | null;
+    legalName?: string | null;
     companyNumber?: string | null;
-    industry?: string;
-    website?: string;
-    linkedinUrl?: string;
-    companiesHouseStatus?: string;
+    industry?: string | null;
+    website?: string | null;
+    linkedinUrl?: string | null;
+    companiesHouseStatus?: string | null;
     confidenceScore?: number;
     sourceData?: unknown;
     lastChecked: string;

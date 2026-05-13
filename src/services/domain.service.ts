@@ -18,7 +18,7 @@ export default {
     console.log(`Company number from domain: ${companyNumberFromDomain}`);
 
     if (companyNumberFromDomain) {
-      const companiesHouseData = await companiesHouseClient.search(
+      companiesHouseData = await companiesHouseClient.search(
         companyNumberFromDomain
       );
       console.log(`Companies House data: ${JSON.stringify(companiesHouseData)}`);
@@ -40,10 +40,10 @@ export default {
       return cached;
     }
     console.log(`Fresh lookup for ${domain}`);
-    const companyEnrich = await companyEnrichClient.lookup(domain);
+    // const companyEnrich = await companyEnrichClient.lookup(domain);
     const companyName =
-      companyEnrich.company_name ||
-      companyEnrich.name ||
+      // companyEnrich.company_name ||
+      // companyEnrich.name ||
       companyLegalName ||
       null;
 
@@ -55,16 +55,19 @@ export default {
       companyNumber:
         companyNumberFromDomain || null,
       industry:
-        companyEnrich.industry || null,
+        // companyEnrich.industry || 
+        null,
       website:
-        companyEnrich.website || null,
+        // companyEnrich.website || 
+        null,
       linkedinUrl:
-        companyEnrich.linkedin_url || null,
+        // companyEnrich.linkedin_url || 
+        null,
       companiesHouseStatus:
         companiesHouseData?.company_status || null,
       confidenceScore: companiesHouseData ? 85 : 60,
       sourceData: {
-        companyEnrich,
+        // companyEnrich,
         companiesHouseData,
         whoIsData
       },
