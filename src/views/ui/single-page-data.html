@@ -1,0 +1,302 @@
+{% set overViewData = [
+  {
+    key: {
+      text: "Company Name"
+    },
+    value: {
+      html: domainInfo.company_name
+    }
+  },
+  {
+    key: {
+      text: "Legal Name"
+    },
+    value: {
+      html: domainInfo.legal_name
+    }
+  },
+  {
+    key: {
+      text: "Domain Name"
+    },
+    value: {
+      html: "<span class='govuk-tag'>" + domainInfo.domain + "</span>"
+    }
+  },
+  {
+    key: {
+      text: "Data Confidence"
+    },
+    value: {
+      html: domainInfo.confidence_score + "%"
+    }
+  },
+  
+  {
+    key: {
+      text: "Primary Industry"
+    },
+    value: {
+      html: domainInfo.industry
+    }
+  },  
+  {
+    key: {
+      text: "Estimated Revenue (£)"
+    },
+    value: {
+      html: domainInfo.revenue
+    }
+  },
+    {
+    key: {
+      text: "Estimated Size"
+    },
+    value: {
+      html: domainInfo.employees
+    }
+  }
+] %}
+
+{% set secondaryData = [
+  {
+    key: {
+      text: "Address"
+    },
+    value: {
+      html: domainInfo.address
+    }
+  },
+  {
+    key: {
+      text: "Description"
+    },
+    value: {
+      html: domainInfo.description
+    }
+  },
+  {
+    key: {
+      text: "Company Registration Number"
+    },
+    value: {
+      html: domainInfo.company_number
+    }
+  },
+  {
+    key: {
+      text: "Status"
+    },
+    value: {
+      html: domainInfo.companies_house_status
+    }
+  },
+  {
+    key: {
+      text: "Entity Type"
+    },
+    value: {
+      html: domainInfo.organisation_type
+    }
+  },
+    {
+    key: {
+      text: "Jurisdiction"
+    },
+    value: {
+      html: domainInfo.jurisdiction
+    }
+  }
+  ]
+%}
+
+{% set industriesHtml %}
+{% set industries = domainInfo.industries | parseJson %}
+
+  {% if industries and industries.length %}
+    <div class="govuk-tag-group">
+      {% for item in industries %}
+          {{ item | replace("-", " ") }}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endset %}
+
+{% set categoriesHtml %}
+{% set categories = domainInfo.categories | parseJson %}
+
+  {% if categories and categories.length %}
+    <div class="govuk-tag-group">
+      {% for item in categories %}
+        <span class="govuk-tag" style="text-transform: capitalize;">
+          {{ item | replace("-", " ") }}
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endset %}
+
+{% set industryData = [
+  {
+    key: {
+      text: "Primary Industry"
+    },
+    value: {
+      html: domainInfo.industry
+    }
+  },
+  {
+    key: {
+      text: "Secondary Industries"
+    },
+    value: {
+      html: industriesHtml
+    }
+  },
+  {
+    key: {
+      text: "Categories"
+    },
+    value: {
+      html: categoriesHtml
+    }
+  }
+  ]
+%}
+
+{% set additionalData = [
+  {
+    key: {
+      text: "Address"
+    },
+    value: {
+      html: domainInfo.address
+    }
+  },
+  {
+    key: {
+      text: "Description"
+    },
+    value: {
+      html: domainInfo.description
+    }
+  },
+  {
+    key: {
+      text: "Company Registration Number"
+    },
+    value: {
+      html: domainInfo.company_number
+    }
+  },
+  {
+    key: {
+      text: "Status"
+    },
+    value: {
+      html: domainInfo.companies_house_status
+    }
+  },
+  {
+    key: {
+      text: "Entity Type"
+    },
+    value: {
+      html: domainInfo.organisation_type
+    }
+  },
+    {
+    key: {
+      text: "Jurisdiction"
+    },
+    value: {
+      html: domainInfo.jurisdiction
+    }
+  }
+  ]
+%}
+
+{% set chLinkData %}
+{% set links = domainInfo.companies_house_links | parseJson %}
+
+{% if links %}
+  <ol class="govuk-list govuk-list--number">
+    {% for key, value in links %}
+      <li>
+        <a target="_blank" href="https://find-and-update.company-information.service.gov.uk{{ value }}"
+        style="text-transform: capitalize;">
+          {{ key | replace("_", " ") }}
+        </a>
+      </li>
+    {% endfor %}
+  </ol>
+{% else %}
+  <p>No links available</p>
+{% endif %}
+{% endset %}
+
+{% set externalLinkData = [
+  {
+    key: {
+      text: "Website"
+    },
+    value: {
+      html: "<a href='" + domainInfo.website + "' target='_blank'>" + domainInfo.website + "</a>"
+    }
+  },
+    {
+    key: {
+      text: "Companies House Links"
+    },
+    value: {
+      html: chLinkData
+    }
+  }
+  ]
+%}
+
+
+  {{ govukSummaryList({
+    card: {
+    title: {
+      text: "Overview"
+    }
+  },
+  rows: overViewData
+}) }}
+
+{{ govukSummaryList({
+    card: {
+    title: {
+      text: "Company Insight"
+    }
+  },
+  rows: secondaryData
+}) }}
+
+{{ govukSummaryList({
+    card: {
+    title: {
+      text: "Industry Insight"
+    }
+  },
+  rows: industryData
+}) }}
+
+{{ govukSummaryList({
+    card: {
+    title: {
+      text: "Additional Insight"
+    }
+  },
+  rows: additionalData
+}) }}
+
+{{ govukSummaryList({
+    card: {
+    title: {
+      text: "External Links"
+    }
+  },
+  rows: externalLinkData
+}) }}

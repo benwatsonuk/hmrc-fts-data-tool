@@ -12,9 +12,20 @@ const app = express();
 
 app.use(express.json());
 
-nunjucks.configure(["src/views", "node_modules/govuk-frontend/dist/govuk/"], {
+const env = nunjucks.configure(["src/views", "node_modules/govuk-frontend/dist/govuk/"], {
   autoescape: true,
   express: app
+});
+
+env.addFilter("parseJson", (value: string) => {
+  if (!value) return null;
+
+  try {
+    return JSON.parse(value);
+  } catch (err) {
+    console.error("parseJson filter failed:", err);
+    return null;
+  }
 });
 
 const publicPath = path.resolve(
