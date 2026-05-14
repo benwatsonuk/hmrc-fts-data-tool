@@ -48,8 +48,15 @@ router.post("/", async (_req, res) => {
       });
     } else {
       const result = await domainService.lookup(domain);
-
-      return res.redirect(`/ui/${domain}`);
+      if (result.success) {
+        return res.redirect(`/ui/${domain}`);
+      } else {
+        res.render("ui/index.html", {
+          title: "Domain Intelligence API - UI",
+          errorGlobal: result.message,
+          cachedData
+        });
+      }
     }
 
   } catch (error) {

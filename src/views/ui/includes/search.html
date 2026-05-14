@@ -2,7 +2,7 @@
 {% from "components/button/macro.njk" import govukButton %}
 
 <form method="post" action="./">
-  <!-- {% if error %}
+  {% if errorGlobal %}
     <div class="govuk-error-summary" aria-labelledby="error-summary-heading" role="alert">
       <h2 class="govuk-error-summary__title" id="error-summary-heading">
         There is a problem
@@ -10,12 +10,12 @@
       <div class="govuk-error-summary__body">
         <ul class="govuk-list govuk-error-summary__list">
           <li>
-            <a href="#domain">{{ error }}</a>
+            <a href="#domain">{{ errorGlobal }}</a>
           </li>
         </ul>
       </div>
     </div>
-  {% endif %} -->
+  {% endif %}
 
   {% set errorMessage = null %}
   {% if error %}

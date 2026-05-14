@@ -1,16 +1,34 @@
 import { safeCall } from "../utils/safe-call";
 import companyEnrichClient from "../clients/company-enrich.client";
 import findCompanyNumber from "../utils/find-company-number";
+import isValidDomain from "../utils/is-valid-domain";
 import companiesHouseClient from "../clients/companies-house.client";
 import {
   findByDomain,
   save,
-  isFresh
+  isFresh,
+  OrganisationRecord
 } from "../database/organisation.repository";
 import whoisClient from "../clients/whois.client";
 
+export type LookupResult = {
+  success: boolean
+  message: string
+  data: OrganisationRecord | null
+}
+
 export default {
-  async lookup(domain: string) {
+  async lookup(domain: string): Promise<LookupResult> {
+
+    /**
+     * 0. CHECK WHETHER DOMAIN IS VALID
+     */
+    if (!isValidDomain(domain)) {
+      throw new Error(
+        `Invalid domain provided: ${domain}`
+      );
+    }
+
     /**
      * 1. CACHE FIRST (critical fix)
      */
@@ -18,14 +36,23 @@ export default {
 
     if (cached && isFresh(cached.lastChecked)) {
       console.log(`Cache hit for ${domain}`);
-      return cached;
+      return {
+        success: true,
+        message: "Returned from cache",
+        data: cached
+      }
     }
 
     console.log(`Cache miss for ${domain}`);
 
+
+
     /**
      * 2. FAST DOMAIN SIGNALS (non-blocking enrichment inputs)
      */
+    console.log(
+      `Attempting to locate company number for: ${domain}`
+    );
     const companyNumberFromDomain = await safeCall(
       "Find company number from domain",
       () => findCompanyNumber(domain)
@@ -35,11 +62,18 @@ export default {
       console.log(
         `Found company number from domain: ${companyNumberFromDomain}`
       );
+    } else {
+      console.log(
+        `No company number found from domain for ${domain}`
+      );
     }
 
     /**
      * 3. WHOIS (soft dependency)
      */
+    console.log(
+      `Performing WhoIs lookup for ${domain}`
+    );
     const whoIsData = await safeCall(
       "Whois lookup",
       () => whoisClient.lookup(domain)
@@ -52,6 +86,9 @@ export default {
     let companyLegalName: string | null = null;
 
     if (companyNumberFromDomain) {
+      console.log(
+        `Performing Companies House search for ${domain}`
+      );
       companiesHouseData = await safeCall(
         "Companies House search",
         () =>
@@ -74,6 +111,9 @@ export default {
     /**
      * 5. ENRICHMENT API (best-effort)
      */
+    console.log(
+      `Performing Company Enrichment for ${domain}`
+    );
     const companyEnrich = await safeCall(
       "Company Enrich",
       () =>
@@ -170,10 +210,57 @@ export default {
     };
 
     /**
-     * 8. SAVE TO CACHE
+     * 8. CHECK WHETHER WE HAVE ANY USEFUL DATA TO CACHE (critical fix to avoid caching failed lookups
      */
+    const hasUsefulData =
+      !!companyEnrich ||
+      !!companiesHouseData ||
+      !!whoIsData ||
+      !!companyNumber;
+
+    if (!hasUsefulData) {
+      console.log(
+        `Skipping cache save for ${domain} — no useful enrichment found`
+      );
+
+      return {
+        success: false,
+        message:
+          "No useful organisation data could be found for this domain",
+        data: null
+      };
+    }
+
+    /**
+     * 9. SAVE TO CACHE
+     */
+    const shouldSave =
+      !!companyName ||
+      !!companyNumber ||
+      !!companiesHouseData?.company_name;
+
+    if (!shouldSave) {
+      console.log(
+        `Skipping save for ${domain} — nothing usefule here, insufficient enrichment`
+      );
+
+      return {
+        success: false,
+        message:
+          "No useful organisation data could be found for this domain",
+        data: null
+      };
+    }
+
     await save(result);
 
-    return result;
+    /**
+     * 10. RETURN WHAT WE HAVE
+     */
+    return {
+      success: true,
+      message: "Lookup successful",
+      data: result
+    };
   }
 };
