@@ -2,20 +2,17 @@
 
 import { Router } from "express";
 import { findAll } from "../database/organisation.repository";
-import { or } from "ajv/dist/compile/codegen";
-
+import domainService from "../services/domain.service";
 
 const router = Router();
 
-router.get("/", async (_req, res) => {
-
+const getCachedData = async (res: any) => {
   try {
     const cachedData = await findAll();
 
-    res.render("ui/index.html", {
-      title: "Domain Intelligence API - UI",
-      cachedData
-    });
+    console.log(`Loaded ${cachedData.length} cached organisations`);
+
+    return cachedData;
 
   } catch (error) {
     console.error(error);
@@ -24,12 +21,49 @@ router.get("/", async (_req, res) => {
       "Failed to load organisations"
     );
   }
+}
+
+router.get("/", async (_req, res) => {
+
+  const cachedData = await getCachedData(res);
+
+  res.render("ui/index.html", {
+    title: "Domain Intelligence API - UI",
+    cachedData
+  });
 });
 
-router.post("/", (_req, res) => {
-  res.render("ui/index.html", {
-    title: "Domain Intelligence API - UI"
-  });
+router.post("/", async (_req, res) => {
+  const cachedData = await getCachedData(res);
+
+  try {
+
+    const domain = _req.body.domain?.trim();
+
+    if (!domain) {
+      res.render("ui/index.html", {
+        title: "Domain Intelligence API - UI",
+        error: "Please enter a domain name",
+        cachedData
+      });
+    } else {
+      const result = await domainService.lookup(domain);
+
+      return res.redirect(`/ui/${domain}`);
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).render(
+      "ui/index.html",
+      {
+        cachedData,
+        error:
+          "Something went wrong while looking up the domain. Please try again."
+      }
+    );
+  }
 });
 
 router.get("/:domain", async (_req, res) => {

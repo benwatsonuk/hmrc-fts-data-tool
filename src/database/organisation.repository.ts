@@ -31,7 +31,8 @@ function isFresh(lastChecked: string): boolean {
     const last = new Date(lastChecked).getTime();
     const now = Date.now();
     const days30 = 1000 * 60 * 60 * 24 * 30;
-    return now - last < days30;
+    const refreshInterval = parseInt(process.env.CACHE_REFRESH_INTERVAL || days30.toString(), 10); // Default to 30 Days
+    return now - last < refreshInterval;
 }
 
 export function findByDomain(

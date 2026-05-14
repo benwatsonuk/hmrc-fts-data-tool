@@ -31,7 +31,7 @@ export default {
       () => findCompanyNumber(domain)
     );
 
-    if (companyNumberFromDomain) {
+    if (companyNumberFromDomain && process.env.ENABLE_DEBUG_LOGGING === "true") {
       console.log(
         `Found company number from domain: ${companyNumberFromDomain}`
       );
@@ -63,10 +63,11 @@ export default {
       if (companiesHouseData) {
         companyLegalName =
           companiesHouseData.company_name || null;
-
-        console.log(
-          `Company legal name: ${companyLegalName}`
-        );
+        if (process.env.ENABLE_DEBUG_LOGGING === "true") {
+          console.log(
+            `Company legal name: ${companyLegalName}`
+          );
+        }
       }
     }
 

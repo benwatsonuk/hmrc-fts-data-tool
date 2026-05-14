@@ -24,7 +24,7 @@ const publicPath = path.resolve(
 
 app.set("view engine", "html");
 app.use('/assets', express.static(publicPath))
-
+app.use(express.urlencoded({ extended: true }));
 app.use("/api/domain", domainRoutes);
 app.use("/ui/", uiRoutes);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
