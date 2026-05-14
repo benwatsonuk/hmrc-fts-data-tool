@@ -85,6 +85,14 @@
   },
   {
     key: {
+      text: "Created on"
+    },
+    value: {
+      html: domainInfo.created_on
+    }
+  },
+  {
+    key: {
       text: "Status"
     },
     value: {
@@ -136,6 +144,20 @@
   {% endif %}
 {% endset %}
 
+{% set sicCodesHtml %}
+{% set sicCodes = domainInfo.sic_codes | parseJson %}
+
+  {% if sicCodes and sicCodes.length %}
+    <div class="govuk-tag-group">
+      {% for item in sicCodes %}
+        <span class="govuk-tag" style="text-transform: capitalize;">
+          {{ item | replace("-", " ") }}
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endset %}
+
 {% set industryData = [
   {
     key: {
@@ -159,6 +181,14 @@
     },
     value: {
       html: categoriesHtml
+    }
+  },
+  {
+    key: {
+      text: "SIC Codes"
+    },
+    value: {
+      html: sicCodesHtml
     }
   }
   ]
@@ -255,6 +285,30 @@
   ]
 %}
 
+<!-- {% set previousTradingDataHtml %} -->
+{% set previousTradingData = [] %}
+{% set PD = domainInfo.previous_company_names | parseJson %}
+
+{% for item in PD %}
+    {% set item = '
+        <strong> ' + item.name + '</strong><br>
+
+        <span class="govuk-hint">
+          Effective from: ' + item.effective_from  + '
+        </span>
+
+          <br>
+          <span class="govuk-hint">
+            Ceased on: ' + item.ceased_on  + '
+          </span>
+        '
+      %}
+    {% set previousTradingData = (previousTradingData.push(item), previousTradingData) %}
+    {{ previousTradingData }}
+{% endfor %}
+
+<!-- {% endset %} -->
+
 
   {{ govukSummaryList({
     card: {
@@ -283,14 +337,25 @@
   rows: industryData
 }) }}
 
+{% if domainInfo.previous_company_names %}
+
 {{ govukSummaryList({
     card: {
     title: {
-      text: "Additional Insight"
+      text: "Previous Trading Insight"
     }
   },
-  rows: additionalData
+  rows: [{
+    key: {
+      text: "Trading as"
+    },
+    value: {
+      html: previousTradingData
+    }
+  }]
 }) }}
+
+{% endif %}
 
 {{ govukSummaryList({
     card: {
