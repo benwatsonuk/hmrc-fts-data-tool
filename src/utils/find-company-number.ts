@@ -5,7 +5,10 @@ import * as cheerio from "cheerio";
 
 export default async function findCompanyNumber(
     domain: string
-): Promise<string | null> {
+): Promise<{
+    homepageAvailable: boolean;
+    companyNumber: string | null;
+}> {
     const baseUrl = domain.startsWith("http")
         ? domain
         : `https://${domain}`;
@@ -27,15 +30,17 @@ export default async function findCompanyNumber(
     ];
 
     /**
-     * UK company number matcher
-     *
-     * Matches:
-     * 06014477
-     * Company No. 06014477
-     * Registered Number: 06014477
-     */
+   * UK company number matcher
+   *
+   * Matches:
+   * 06014477
+   * Company No. 06014477
+   * Registered Number: 06014477
+   */
     const companyNumberRegex =
         /\b(?:company\s*(?:no|number)?\.?\s*[:#]?\s*)?(\d{8})\b/i;
+
+    let homepageAvailable = false;
 
     for (const path of pathsToCheck) {
         try {
@@ -45,11 +50,30 @@ export default async function findCompanyNumber(
 
             const response = await axios.get(url, {
                 timeout: 10000,
+                validateStatus: () => true,
                 headers: {
                     "User-Agent":
                         "Mozilla/5.0 (compatible; DomainLookupBot/1.0)"
                 }
             });
+
+            /**
+             * Only homepage determines whether
+             * the domain is considered reachable
+             */
+            if (path === "/" && response.status === 200) {
+                homepageAvailable = true;
+            }
+
+            /**
+             * Skip non-200 pages except continue checking
+             */
+            if (response.status !== 200) {
+                console.log(
+                    `Skipping ${url} (HTTP ${response.status})`
+                );
+                continue;
+            }
 
             const $ = cheerio.load(response.data);
 
@@ -71,11 +95,14 @@ export default async function findCompanyNumber(
                     `Found company number ${match[1]} on ${url}`
                 );
 
-                return match[1]
+                return {
+                    homepageAvailable,
+                    companyNumber: match[1]
+                };
             }
         } catch (error) {
             /**
-             * Ignore missing pages (404 etc.)
+             * Ignore missing pages/network issues
              * and continue checking other paths
              */
             console.log(
@@ -88,5 +115,8 @@ export default async function findCompanyNumber(
         `No company number found for ${domain}`
     );
 
-    return null;
+    return {
+        homepageAvailable,
+        companyNumber: null
+    };
 }

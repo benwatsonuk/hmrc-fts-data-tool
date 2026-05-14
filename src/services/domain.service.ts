@@ -58,14 +58,26 @@ export default {
       () => findCompanyNumber(domain)
     );
 
-    if (companyNumberFromDomain && process.env.ENABLE_DEBUG_LOGGING === "true") {
+    if (!companyNumberFromDomain?.homepageAvailable) {
       console.log(
-        `Found company number from domain: ${companyNumberFromDomain}`
+        `No homepage found for: ${domain}`
       );
-    } else {
-      console.log(
-        `No company number found from domain for ${domain}`
-      );
+      return {
+        success: false,
+        message: "That domain does not appear to be valid. Please try another domain.",
+        data: null
+      }
+    }
+    else {
+      if (!companyNumberFromDomain?.companyNumber) {
+        console.log(
+          `Found company number from domain: ${companyNumberFromDomain}`
+        );
+      } else {
+        console.log(
+          `No company number found from domain for ${domain}`
+        );
+      }
     }
 
     /**
@@ -85,7 +97,7 @@ export default {
     let companiesHouseData: any = null;
     let companyLegalName: string | null = null;
 
-    if (companyNumberFromDomain) {
+    if (companyNumberFromDomain?.companyNumber) {
       console.log(
         `Performing Companies House search for ${domain}`
       );
@@ -93,7 +105,7 @@ export default {
         "Companies House search",
         () =>
           companiesHouseClient.search(
-            companyNumberFromDomain
+            companyNumberFromDomain?.companyNumber
           )
       );
 
@@ -130,7 +142,7 @@ export default {
       null;
 
     const companyNumber =
-      companyNumberFromDomain ||
+      companyNumberFromDomain?.companyNumber ||
       companiesHouseData?.company_number ||
       null;
 
